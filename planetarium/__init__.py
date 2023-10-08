@@ -1,0 +1,2 @@
+class PlanetariumDome:
+    pass
