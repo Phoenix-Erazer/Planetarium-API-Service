@@ -1,4 +1,7 @@
+from django.conf import settings
+from django.contrib.auth.models import AbstractUser
 from django.db import models
+from user.models import User
 
 
 class ShowTheme(models.Model):
@@ -22,13 +25,14 @@ class PlanetariumDome(models.Model):
     seats_in_row = models.IntegerField()
 
 
-class Reservation:
-    created_at = models.DateTimeField()
-    # user
+# class Reservation(AbstractUser):
+#     pass
+#     # created_at = models.DateTimeField(default=datetime.datetime.now())
+#     # user
 
 
 class ShowSession(models.Model):
-    astronomy_show = models.ForeignKey(PlanetariumDome, on_delete=models.CASCADE)
+    astronomy_show = models.ManyToManyField(settings.AUTH_USER_MODEL)
     planetarium_dome = models.ForeignKey(AstronomyShow, on_delete=models.CASCADE)
     show_time = models.DateTimeField()
 
@@ -36,5 +40,5 @@ class ShowSession(models.Model):
 class Ticket(models.Model):
     row = models.IntegerField()
     seat = models.IntegerField()
-    show_sessions = models.ForeignKey(AstronomyShow, on_delete=models.CASCADE)
-    reservations = models.ForeignKey(Reservation, on_delete=models.CASCADE)
+    show_sessions = models.ForeignKey(ShowSession, on_delete=models.CASCADE)
+    reservations = models.ForeignKey(User, on_delete=models.CASCADE)
