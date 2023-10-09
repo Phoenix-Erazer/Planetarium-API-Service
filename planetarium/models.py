@@ -1,5 +1,4 @@
 from django.conf import settings
-from django.contrib.auth.models import AbstractUser
 from django.db import models
 from user.models import User
 
@@ -13,7 +12,9 @@ class ShowTheme(models.Model):
 
 class AstronomyShow(models.Model):
     title = models.CharField(max_length=64, null=True)
-    description = models.ManyToManyField(ShowTheme, related_name="astronomy_shows")
+    description = models.ManyToManyField(
+        ShowTheme, related_name="astronomy_shows"
+    )
 
     def __str__(self):
         return str(self.title)
@@ -33,7 +34,9 @@ class PlanetariumDome(models.Model):
 
 class ShowSession(models.Model):
     astronomy_show = models.ManyToManyField(settings.AUTH_USER_MODEL)
-    planetarium_dome = models.ForeignKey(AstronomyShow, on_delete=models.CASCADE)
+    planetarium_dome = models.ForeignKey(
+        AstronomyShow, on_delete=models.CASCADE
+    )
     show_time = models.DateTimeField()
 
 
