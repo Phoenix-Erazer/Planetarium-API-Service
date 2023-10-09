@@ -30,7 +30,7 @@ class PlanetariumDome(models.Model):
 
 class Reservation(models.Model):
     created_at = models.DateTimeField(default=datetime.now())
-    user = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="reservations")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
 
 class ShowSession(models.Model):
