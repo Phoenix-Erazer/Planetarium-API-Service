@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.conf import settings
 from django.db import models
 from user.models import User
@@ -26,10 +28,9 @@ class PlanetariumDome(models.Model):
     seats_in_row = models.IntegerField()
 
 
-# class Reservation(AbstractUser):
-#     pass
-#     # created_at = models.DateTimeField(default=datetime.datetime.now())
-#     # user
+class Reservation(models.Model):
+    created_at = models.DateTimeField(default=datetime.now())
+    user = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="reservations")
 
 
 class ShowSession(models.Model):
@@ -44,5 +45,5 @@ class Ticket(models.Model):
     row = models.IntegerField()
     seat = models.IntegerField()
     show_sessions = models.ForeignKey(ShowSession, on_delete=models.CASCADE)
-    reservations = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="tickets")
+    reservations = models.ForeignKey(Reservation, on_delete=models.CASCADE)
 
