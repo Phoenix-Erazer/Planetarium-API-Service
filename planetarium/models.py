@@ -33,10 +33,10 @@ class PlanetariumDome(models.Model):
 
 
 class ShowSession(models.Model):
-    astronomy_show = models.ManyToManyField(settings.AUTH_USER_MODEL)
-    planetarium_dome = models.ForeignKey(
+    astronomy_show = models.ForeignKey(
         AstronomyShow, on_delete=models.CASCADE
     )
+    planetarium_dome = models.ForeignKey(PlanetariumDome, on_delete=models.CASCADE)
     show_time = models.DateTimeField()
 
 
@@ -44,4 +44,5 @@ class Ticket(models.Model):
     row = models.IntegerField()
     seat = models.IntegerField()
     show_sessions = models.ForeignKey(ShowSession, on_delete=models.CASCADE)
-    reservations = models.ForeignKey(User, on_delete=models.CASCADE)
+    reservations = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="tickets")
+
