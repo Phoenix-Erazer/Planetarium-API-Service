@@ -55,4 +55,3 @@ class Ticket(models.Model):
     seat = models.IntegerField()
     show_sessions = models.ForeignKey(ShowSession, on_delete=models.CASCADE)
     reservations = models.ForeignKey(Reservation, on_delete=models.CASCADE)
-
