@@ -37,14 +37,20 @@ class PlanetariumDomeAdmin(admin.ModelAdmin):
     search_fields = ["name"]
 
 
-@admin.register(Reservation)
-class ReservationAdmin(admin.ModelAdmin):
-    list_display = ["id", "user", "created_at"]
-    list_filter = ["user"]
-    search_fields = ["user__username"]
+class TicketInline(admin.TabularInline):
+    model = Ticket
+    extra = 1
 
 
 @admin.register(Ticket)
 class TicketAdmin(admin.ModelAdmin):
     list_display = ["id", "row", "seat", "show_sessions", "reservations"]
     search_fields = ["show_sessions"]
+
+
+@admin.register(Reservation)
+class ReservationAdmin(admin.ModelAdmin):
+    list_display = ["id", "user", "created_at"]
+    list_filter = ["user"]
+    search_fields = ["user__username"]
+    inlines = (TicketInline,)
