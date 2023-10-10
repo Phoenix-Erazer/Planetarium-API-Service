@@ -4,14 +4,14 @@ from planetarium.models import (
     PlanetariumDome,
     AstronomyShow,
     Reservation,
-    ShowSession,
+    ShowSession, Ticket,
 )
 from planetarium.serializers import (
     ShowThemeSerializers,
     PlanetariumDomeSerializers,
     AstronomyShowSerializers,
     ReservationSerializers,
-    ShowSessionSerializers,
+    ShowSessionSerializers, TicketSerializers,
 )
 
 
@@ -38,3 +38,8 @@ class ReservationViewSet(viewsets.ModelViewSet):
 class ShowSessionViewSet(viewsets.ModelViewSet):
     queryset = ShowSession.objects.all()
     serializer_class = ShowSessionSerializers
+
+
+class TicketViewSet(viewsets.ModelViewSet):
+    queryset = Ticket.objects.all()
+    serializer_class = TicketSerializers
