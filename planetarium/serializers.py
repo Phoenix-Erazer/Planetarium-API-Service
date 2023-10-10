@@ -21,6 +21,8 @@ class PlanetariumDomeSerializers(serializers.ModelSerializer):
 
 
 class AstronomyShowSerializers(serializers.ModelSerializer):
+    # description = ShowThemeSerializers(many=True, read_only=True)
+
     class Meta:
         model = AstronomyShow
         fields = ("id", "title", "description",)
@@ -36,6 +38,11 @@ class ShowSessionSerializers(serializers.ModelSerializer):
     class Meta:
         model = ShowSession
         fields = ("id", "astronomy_show", "planetarium_dome", "show_time")
+
+
+class ShowSessionListSerializers(ShowSessionSerializers):
+    astronomy_show = AstronomyShowSerializers(many=False, read_only=True)
+    planetarium_dome = PlanetariumDomeSerializers(many=False, read_only=True)
 
 
 class TicketSerializers(serializers.ModelSerializer):
