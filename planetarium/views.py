@@ -1,9 +1,17 @@
 from rest_framework import viewsets
-from planetarium.models import ShowTheme, PlanetariumDome, AstronomyShow, Reservation
+from planetarium.models import (
+    ShowTheme,
+    PlanetariumDome,
+    AstronomyShow,
+    Reservation,
+    ShowSession,
+)
 from planetarium.serializers import (
     ShowThemeSerializers,
     PlanetariumDomeSerializers,
-    AstronomyShowSerializers, ReservationSerializers,
+    AstronomyShowSerializers,
+    ReservationSerializers,
+    ShowSessionSerializers,
 )
 
 
@@ -25,3 +33,8 @@ class AstronomyShowViewSet(viewsets.ModelViewSet):
 class ReservationViewSet(viewsets.ModelViewSet):
     queryset = Reservation.objects.all()
     serializer_class = ReservationSerializers
+
+
+class ShowSessionViewSet(viewsets.ModelViewSet):
+    queryset = ShowSession.objects.all()
+    serializer_class = ShowSessionSerializers

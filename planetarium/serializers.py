@@ -4,7 +4,7 @@ from planetarium.models import (
     ShowTheme,
     PlanetariumDome,
     AstronomyShow,
-    Reservation
+    Reservation, ShowSession
 )
 
 
@@ -29,4 +29,10 @@ class AstronomyShowSerializers(serializers.ModelSerializer):
 class ReservationSerializers(serializers.ModelSerializer):
     class Meta:
         model = Reservation
-        fields = ("id", "created_at", "user", )
+        fields = ("id", "created_at", "user",)
+
+
+class ShowSessionSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = ShowSession
+        fields = ("id", "astronomy_show", "planetarium_dome", "show_time")
