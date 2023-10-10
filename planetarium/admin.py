@@ -19,7 +19,6 @@ class ShowThemeAdmin(admin.ModelAdmin):
 
 @admin.register(AstronomyShow)
 class AstronomyShowAdmin(admin.ModelAdmin):
-    pass
     list_display = ["id", "title"]
     list_filter = ["title"]
     search_fields = ["title"]
