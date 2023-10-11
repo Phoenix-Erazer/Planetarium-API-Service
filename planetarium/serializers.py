@@ -6,6 +6,13 @@ from planetarium.models import (
     AstronomyShow,
     Reservation, ShowSession, Ticket
 )
+from user.models import User
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ("username", "first_name", "last_name", "email")
 
 
 class ShowThemeSerializers(serializers.ModelSerializer):
@@ -32,6 +39,10 @@ class ReservationSerializers(serializers.ModelSerializer):
     class Meta:
         model = Reservation
         fields = ("id", "created_at", "user",)
+
+
+class ReservationListSerializers(ReservationSerializers):
+    user = UserSerializer(many=False, read_only=True)
 
 
 class ShowSessionSerializers(serializers.ModelSerializer):
