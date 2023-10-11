@@ -85,5 +85,16 @@ class TicketSerializers(serializers.ModelSerializer):
 
 
 class TicketListSerializers(TicketSerializers):
+    # show_sessions_user = serializers.CharField(source="show_sessions.user", read_only=True)
+    # reservations_user = serializers.CharField(source="reservations_user.user", read_only=True)
+
+    # class Meta:
+    #     model = Ticket
+    #     fields = ("id", "row", "seat", "show_sessions", "reservations_user")
+    show_sessions = ShowSessionSerializers(many=False, read_only=True)
+    reservations = ReservationSerializers(many=False, read_only=True)
+
+
+class TicketDetailSerializers(TicketSerializers):
     show_sessions = ShowSessionSerializers(many=False, read_only=True)
     reservations = ReservationSerializers(many=False, read_only=True)

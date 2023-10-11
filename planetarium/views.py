@@ -20,7 +20,7 @@ from planetarium.serializers import (
     AstronomyShowDetailSerializers,
     AstronomyShowListSerializers,
     TicketListSerializers,
-    ShowSessionDetailSerializers,
+    ShowSessionDetailSerializers, TicketDetailSerializers,
 )
 from user.models import User
 
@@ -77,9 +77,10 @@ class TicketViewSet(viewsets.ModelViewSet):
     serializer_class = TicketSerializers
 
     def get_serializer_class(self):
-        if self.action in ("list", "retrieve"):
+        if self.action == "list":
             return TicketListSerializers
-
+        if self.action == "retrieve":
+            return TicketDetailSerializers
         return TicketSerializers
 
 
