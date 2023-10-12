@@ -1,3 +1,4 @@
+from django.db import transaction
 from rest_framework import serializers
 
 from planetarium.models import (
@@ -48,16 +49,6 @@ class AstronomyShowDetailSerializers(AstronomyShowSerializers):
     description = ShowThemeSerializers(many=True, read_only=True)
 
 
-class ReservationSerializers(serializers.ModelSerializer):
-    class Meta:
-        model = Reservation
-        fields = ("id", "created_at", "user",)
-
-
-class ReservationListSerializers(ReservationSerializers):
-    user = UserSerializer(many=False, read_only=True)
-
-
 class ShowSessionSerializers(serializers.ModelSerializer):
     class Meta:
         model = ShowSession
@@ -70,31 +61,58 @@ class ShowSessionListSerializers(ShowSessionSerializers):
 
     class Meta:
         model = ShowSession
-        fields = ("id", "astronomy_show_title", "planetarium_dome_name", "show_time")
-
-
-class ShowSessionDetailSerializers(ShowSessionSerializers):
-    astronomy_show = AstronomyShowDetailSerializers(many=False, read_only=True)
-    planetarium_dome = PlanetariumDomeSerializers(many=False, read_only=True)
+        fields = ("id", "astronomy_show_title", "planetarium_dome_name", "show_time", "planetarium_dome")
 
 
 class TicketSerializers(serializers.ModelSerializer):
+    def validate(self, attrs):
+        data = super(TicketSerializers, self).validate(attrs)
+        Ticket.validate_seat(
+            attrs["seat"],
+            attrs["row"],
+            attrs["show_sessions"].planetarium_dome.seats_in_row,
+            attrs["show_sessions"].planetarium_dome.rows,
+            serializers.ValidationError
+        )
+
+        return data
+
     class Meta:
         model = Ticket
         fields = ("id", "row", "seat", "show_sessions", "reservations")
 
 
-class TicketListSerializers(TicketSerializers):
-    # show_sessions_user = serializers.CharField(source="show_sessions.user", read_only=True)
-    # reservations_user = serializers.CharField(source="reservations_user.user", read_only=True)
-
-    # class Meta:
-    #     model = Ticket
-    #     fields = ("id", "row", "seat", "show_sessions", "reservations_user")
-    show_sessions = ShowSessionSerializers(many=False, read_only=True)
-    reservations = ReservationSerializers(many=False, read_only=True)
+class TicketSeatRowSerializers(ShowSessionSerializers):
+    class Meta:
+        model = Ticket
+        fields = ("row", "seat")
 
 
-class TicketDetailSerializers(TicketSerializers):
-    show_sessions = ShowSessionSerializers(many=False, read_only=True)
-    reservations = ReservationSerializers(many=False, read_only=True)
+class ShowSessionDetailSerializers(ShowSessionSerializers):
+    astronomy_show = AstronomyShowDetailSerializers(many=False, read_only=True)
+    planetarium_dome = PlanetariumDomeSerializers(many=False, read_only=True)
+    tickets = TicketSeatRowSerializers(many=True, read_only=True)
+
+    class Meta:
+        model = ShowSession
+        fields = (
+            "id", "astronomy_show", "planetarium_dome", "show_time",
+            "tickets")
+# class TicketCreateReservationSerializers(TicketSerializers):
+#     reservations = ReservationSerializers(many=False, read_only=False)
+
+
+class ReservationSerializers(serializers.ModelSerializer):
+    tickets = TicketSerializers(many=True, read_only=False, allow_empty=False)
+
+    class Meta:
+        model = Reservation
+        fields = ("id", "created_at", "tickets")
+
+    def create(self, validated_data):
+        with transaction.atomic():
+            tickets_data = validated_data.pop('tickets')
+            reservation = Reservation.objects.create(**validated_data)
+            for ticket_data in tickets_data:
+                Ticket.objects.create(reservation=reservation, **ticket_data)
+            return reservation
