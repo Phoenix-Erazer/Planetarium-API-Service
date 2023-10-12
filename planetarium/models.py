@@ -58,6 +58,7 @@ class Ticket(models.Model):
 
     class Meta:
         unique_together = ("row", "seat", "show_sessions")
+        ordering = ("row",)
 
     @staticmethod
     def validate_seat(seat: int, row: int, seats_in_row: int, rows: int, error_to_raise):
