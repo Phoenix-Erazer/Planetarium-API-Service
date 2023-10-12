@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import UniqueConstraint
 
 from user.models import User
 
@@ -57,22 +56,32 @@ class Ticket(models.Model):
     show_sessions = models.ForeignKey(ShowSession, on_delete=models.CASCADE, related_name="tickets")
     reservations = models.ForeignKey(Reservation, on_delete=models.CASCADE, related_name="tickets")
 
-    def clean(self):
-        if not(1 <= self.seat <= self.show_sessions.planetarium_dome.seats_in_row):
-            raise ValidationError({
-                "seat": f"seat must be in range [1, {self.show_sessions.planetarium_dome.seats_in_row}, not {self.seat}"
+    class Meta:
+        unique_together = ("row", "seat", "show_sessions")
+
+    @staticmethod
+    def validate_seat(seat: int, row: int, seats_in_row: int, rows: int, error_to_raise):
+        if not(1 <= seat <= seats_in_row):
+            raise error_to_raise({
+                "seat": f"seat must be in range [1, {seats_in_row}], not {seat}"
             })
 
-        if not(1 <= self.row <= self.show_sessions.planetarium_dome.rows):
+        if not(1 <= row <= rows):
             raise ValidationError({
-                "rows": f"row must be in range [1, {self.show_sessions.planetarium_dome.rows}, not {self.row}"
+                "rows": f"row must be in range [1, {rows}, not {row}]"
             })
+
+    def clean(self):
+        Ticket.validate_seat(
+            self.seat,
+            self.row,
+            self.show_sessions.planetarium_dome.seats_in_row,
+            self.show_sessions.planetarium_dome.rows,
+            ValidationError
+        )
 
     def save(
         self, force_insert=False, force_update=False, using=None, update_fields=None
     ):
         self.full_clean()
         return super(Ticket, self).save(force_insert, force_update, using, update_fields)
-
-    class Meta:
-        unique_together = ("row", "seat", "show_sessions")
