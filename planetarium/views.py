@@ -9,47 +9,51 @@ from planetarium.models import (
     Ticket,
 )
 from planetarium.serializers import (
-    ShowThemeSerializers,
-    PlanetariumDomeSerializers,
-    AstronomyShowSerializers,
-    ReservationSerializers,
-    ShowSessionSerializers,
-    TicketSerializers,
-    ShowSessionListSerializers,
-    UserSerializer,
-    AstronomyShowDetailSerializers,
-    AstronomyShowListSerializers,
-    ShowSessionDetailSerializers,
+    ShowThemeSerializer,
+    PlanetariumDomeSerializer,
+    AstronomyShowSerializer,
+    ReservationSerializer,
+    ShowSessionSerializer,
+    TicketSerializer,
+    ShowSessionListSerializer,
+    AstronomyShowDetailSerializer,
+    AstronomyShowListSerializer,
+    ShowSessionDetailSerializer,
+    ReservationListSerializer,
 )
 from user.models import User
 
 
 class ShowThemeViewSet(viewsets.ModelViewSet):
     queryset = ShowTheme.objects.all()
-    serializer_class = ShowThemeSerializers
+    serializer_class = ShowThemeSerializer
 
 
 class PlanetariumDomeViewSet(viewsets.ModelViewSet):
     queryset = PlanetariumDome.objects.all()
-    serializer_class = PlanetariumDomeSerializers
+    serializer_class = PlanetariumDomeSerializer
 
 
 class AstronomyShowViewSet(viewsets.ModelViewSet):
     queryset = AstronomyShow.objects.all().prefetch_related("description")
-    serializer_class = AstronomyShowSerializers
+    serializer_class = AstronomyShowSerializer
 
     def get_serializer_class(self):
         if self.action == "retrieve":
-            return AstronomyShowDetailSerializers
+            return AstronomyShowDetailSerializer
         if self.action == "list":
-            return AstronomyShowListSerializers
+            return AstronomyShowListSerializer
 
-        return AstronomyShowSerializers
+        return AstronomyShowSerializer
 
 
 class ReservationViewSet(viewsets.ModelViewSet):
-    queryset = Reservation.objects.all().select_related("user")
-    serializer_class = ReservationSerializers
+    queryset = Reservation.objects.prefetch_related(
+                    "tickets__show_sessions",
+                    # "tickets__show_sessions__astronomy_show",
+                    # "tickets__show_sessions__planetarium_dome"
+    )
+    serializer_class = ReservationSerializer
 
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
@@ -57,10 +61,16 @@ class ReservationViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
+    def get_serializer_class(self):
+        if self.action == "list":
+            return ReservationListSerializer
+
+        return ReservationSerializer
+
 
 class ShowSessionViewSet(viewsets.ModelViewSet):
     queryset = ShowSession.objects.all()
-    serializer_class = ShowSessionSerializers
+    serializer_class = ShowSessionSerializer
 
     def get_queryset(self):
         queryset = self.queryset
@@ -70,25 +80,24 @@ class ShowSessionViewSet(viewsets.ModelViewSet):
                 queryset
                 .select_related("astronomy_show", "planetarium_dome")
                 .annotate(
-                    tickets_available=F("planetarium_dome__seats_in_row") * F("planetarium_dome__rows") - Count("tickets")
+                    tickets_available=(
+                            F("planetarium_dome__seats_in_row") *
+                            F("planetarium_dome__rows") -
+                            Count("tickets")
+                    )
                 )
             ).order_by("id")
         return queryset
 
     def get_serializer_class(self):
         if self.action == "list":
-            return ShowSessionListSerializers
+            return ShowSessionListSerializer
         if self.action == "retrieve":
-            return ShowSessionDetailSerializers
+            return ShowSessionDetailSerializer
 
-        return ShowSessionSerializers
+        return ShowSessionSerializer
 
 
 class TicketViewSet(viewsets.ModelViewSet):
     queryset = Ticket.objects.all().select_related("show_sessions", "reservations")
-    serializer_class = TicketSerializers
-
-
-class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all().select_related("user")
-    serializer_class = UserSerializer
+    serializer_class = TicketSerializer
