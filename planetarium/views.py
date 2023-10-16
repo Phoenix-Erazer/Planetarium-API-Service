@@ -1,7 +1,8 @@
 from django.db.models import Count, F
-from rest_framework import viewsets
+from rest_framework import viewsets, mixins
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.viewsets import GenericViewSet
 
 from planetarium.models import (
     ShowTheme,
@@ -28,21 +29,33 @@ from planetarium.serializers import (
 from rest_framework.pagination import PageNumberPagination
 
 
-class ShowThemeViewSet(viewsets.ModelViewSet):
+class ShowThemeViewSet(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    GenericViewSet,
+):
     queryset = ShowTheme.objects.all()
     serializer_class = ShowThemeSerializer
     authentication_classes = (TokenAuthentication, )
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly, )
 
 
-class PlanetariumDomeViewSet(viewsets.ModelViewSet):
+class PlanetariumDomeViewSet(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    GenericViewSet,
+):
     queryset = PlanetariumDome.objects.all()
     serializer_class = PlanetariumDomeSerializer
     authentication_classes = (TokenAuthentication, )
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly, )
 
 
-class AstronomyShowViewSet(viewsets.ModelViewSet):
+class AstronomyShowViewSet(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    GenericViewSet,
+):
     queryset = AstronomyShow.objects.all().prefetch_related("description")
     serializer_class = AstronomyShowSerializer
     authentication_classes = (TokenAuthentication, )
@@ -63,7 +76,11 @@ class ReservationPagination(PageNumberPagination):
     max_page_size = 100
 
 
-class ReservationViewSet(viewsets.ModelViewSet):
+class ReservationViewSet(
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    GenericViewSet
+):
     queryset = Reservation.objects.prefetch_related(
                     "tickets__show_sessions",
                     # "tickets__show_sessions__astronomy_show",
@@ -87,7 +104,12 @@ class ReservationViewSet(viewsets.ModelViewSet):
         return ReservationSerializer
 
 
-class ShowSessionViewSet(viewsets.ModelViewSet):
+class ShowSessionViewSet(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    GenericViewSet
+):
     queryset = ShowSession.objects.all()
     serializer_class = ShowSessionSerializer
     authentication_classes = (TokenAuthentication, )
