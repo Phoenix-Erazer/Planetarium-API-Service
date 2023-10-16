@@ -24,10 +24,18 @@ class PlanetariumDomeSerializer(serializers.ModelSerializer):
 
 
 class AstronomyShowSerializer(serializers.ModelSerializer):
+    image = serializers.ImageField(read_only=True)
 
     class Meta:
         model = AstronomyShow
-        fields = ("id", "title", "description",)
+        fields = ("id", "title", "description", "image")
+
+
+class AstronomyShowImageSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = AstronomyShow
+        fields = ("id", "image")
 
 
 class AstronomyShowListSerializer(AstronomyShowSerializer):
