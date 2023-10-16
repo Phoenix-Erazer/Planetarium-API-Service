@@ -22,7 +22,7 @@ from planetarium.serializers import (
     ReservationListSerializer,
 )
 from user.models import User
-
+from rest_framework.pagination import PageNumberPagination
 
 class ShowThemeViewSet(viewsets.ModelViewSet):
     queryset = ShowTheme.objects.all()
@@ -47,6 +47,12 @@ class AstronomyShowViewSet(viewsets.ModelViewSet):
         return AstronomyShowSerializer
 
 
+class ReservationPagination(PageNumberPagination):
+    page_size = 1
+    page_size_query_param = "page_size"
+    max_page_size = 100
+
+
 class ReservationViewSet(viewsets.ModelViewSet):
     queryset = Reservation.objects.prefetch_related(
                     "tickets__show_sessions",
@@ -54,6 +60,7 @@ class ReservationViewSet(viewsets.ModelViewSet):
                     # "tickets__show_sessions__planetarium_dome"
     )
     serializer_class = ReservationSerializer
+    pagination_class = ReservationPagination
 
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
