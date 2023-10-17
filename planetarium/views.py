@@ -1,4 +1,5 @@
 from django.db.models import Count, F
+from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import viewsets, mixins, status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import action
@@ -26,7 +27,8 @@ from planetarium.serializers import (
     AstronomyShowDetailSerializer,
     AstronomyShowListSerializer,
     ShowSessionDetailSerializer,
-    ReservationListSerializer, AstronomyShowImageSerializer,
+    ReservationListSerializer,
+    AstronomyShowImageSerializer,
 )
 from rest_framework.pagination import PageNumberPagination
 
@@ -38,8 +40,8 @@ class ShowThemeViewSet(
 ):
     queryset = ShowTheme.objects.all()
     serializer_class = ShowThemeSerializer
-    authentication_classes = (TokenAuthentication, )
-    permission_classes = (IsAdminOrIfAuthenticatedReadOnly, )
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
 
 class PlanetariumDomeViewSet(
@@ -49,8 +51,8 @@ class PlanetariumDomeViewSet(
 ):
     queryset = PlanetariumDome.objects.all()
     serializer_class = PlanetariumDomeSerializer
-    authentication_classes = (TokenAuthentication, )
-    permission_classes = (IsAdminOrIfAuthenticatedReadOnly, )
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
 
 class AstronomyShowViewSet(
@@ -58,10 +60,28 @@ class AstronomyShowViewSet(
     mixins.ListModelMixin,
     GenericViewSet,
 ):
-    queryset = AstronomyShow.objects.all().prefetch_related("description")
+    queryset = AstronomyShow.objects.all()
     serializer_class = AstronomyShowSerializer
-    authentication_classes = (TokenAuthentication, )
-    permission_classes = (IsAdminOrIfAuthenticatedReadOnly, )
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
+
+    @staticmethod
+    def _params_to_ints(qs):
+        """Converts a list of string IDs to a list of integers"""
+        return [int(str_id) for str_id in qs.split(",")]
+
+    def get_queryset(self):
+        """Retrieve the astronomy shows with filters"""
+        title = self.request.query_params.get("title")
+
+        queryset = self.queryset
+
+        if title:
+            queryset = queryset.filter(title__icontains=title)
+
+        if self.action in ("list", "retrieve"):
+            queryset = queryset.prefetch_related("description")
+        return queryset.distinct()
 
     def get_serializer_class(self):
         if self.action == "retrieve":
@@ -78,7 +98,7 @@ class AstronomyShowViewSet(
         methods=["POST"],
         detail=True,
         url_path="upload-image",
-        permission_classes=[IsAdminUser]
+        permission_classes=[IsAdminUser],
     )
     def upload_image(self, request, pk=None):
         astronomy_show = self.get_object()
@@ -88,6 +108,18 @@ class AstronomyShowViewSet(
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                "title",
+                type=str,
+                description="Filter by title (ex. ?title=astronomy show)",
+            ),
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
 
 class ReservationPagination(PageNumberPagination):
     page_size = 1
@@ -96,19 +128,17 @@ class ReservationPagination(PageNumberPagination):
 
 
 class ReservationViewSet(
-    mixins.ListModelMixin,
-    mixins.CreateModelMixin,
-    GenericViewSet
+    mixins.ListModelMixin, mixins.CreateModelMixin, GenericViewSet
 ):
     queryset = Reservation.objects.prefetch_related(
-                    "tickets__show_sessions",
-                    # "tickets__show_sessions__astronomy_show",
-                    # "tickets__show_sessions__planetarium_dome"
+        "tickets__show_sessions",
+        # "tickets__show_sessions__astronomy_show",
+        # "tickets__show_sessions__planetarium_dome"
     )
     serializer_class = ReservationSerializer
     pagination_class = ReservationPagination
-    authentication_classes = (TokenAuthentication, )
-    permission_classes = (IsAuthenticated, )
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
@@ -127,25 +157,23 @@ class ShowSessionViewSet(
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
-    GenericViewSet
+    GenericViewSet,
 ):
     queryset = ShowSession.objects.all()
     serializer_class = ShowSessionSerializer
-    authentication_classes = (TokenAuthentication, )
-    permission_classes = (IsAdminOrIfAuthenticatedReadOnly, )
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
     def get_queryset(self):
         queryset = self.queryset
 
         if self.action == "list":
             queryset = (
-                queryset
-                .select_related("astronomy_show", "planetarium_dome")
-                .annotate(
+                queryset.select_related("astronomy_show", "planetarium_dome").annotate(
                     tickets_available=(
-                            F("planetarium_dome__seats_in_row") *
-                            F("planetarium_dome__rows") -
-                            Count("tickets")
+                        F("planetarium_dome__seats_in_row")
+                        * F("planetarium_dome__rows")
+                        - Count("tickets")
                     )
                 )
             ).order_by("id")
@@ -163,5 +191,5 @@ class ShowSessionViewSet(
 class TicketViewSet(viewsets.ModelViewSet):
     queryset = Ticket.objects.all().select_related("show_sessions", "reservations")
     serializer_class = TicketSerializer
-    authentication_classes = (TokenAuthentication, )
-    permission_classes = (IsAdminOrIfAuthenticatedReadOnly, )
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
