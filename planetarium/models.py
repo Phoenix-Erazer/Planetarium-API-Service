@@ -3,6 +3,7 @@ import uuid
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.text import slugify
 
@@ -35,8 +36,8 @@ class AstronomyShow(models.Model):
 
 class PlanetariumDome(models.Model):
     name = models.CharField(max_length=255, null=True)
-    rows = models.IntegerField(default=0)
-    seats_in_row = models.IntegerField()
+    rows = models.IntegerField(default=1, validators=[MinValueValidator(1)])
+    seats_in_row = models.IntegerField(default=1, validators=[MinValueValidator(1)])
 
     def __str__(self):
         return f"{self.name}"
