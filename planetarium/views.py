@@ -35,6 +35,7 @@ from rest_framework.pagination import PageNumberPagination
 class ShowThemeViewSet(
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
     GenericViewSet,
 ):
     queryset = ShowTheme.objects.all()
@@ -45,6 +46,7 @@ class ShowThemeViewSet(
 class PlanetariumDomeViewSet(
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
+    mixins.UpdateModelMixin,
     GenericViewSet,
 ):
     queryset = PlanetariumDome.objects.all()
@@ -55,6 +57,7 @@ class PlanetariumDomeViewSet(
 class AstronomyShowViewSet(
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
     GenericViewSet,
 ):
     queryset = AstronomyShow.objects.all()
