@@ -42,6 +42,29 @@ class ShowThemeViewSet(
     serializer_class = ShowThemeSerializer
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
+    def get_queryset(self):
+        """Retrieve the astronomy shows with filters"""
+        name = self.request.query_params.get("name")
+
+        queryset = self.queryset
+
+        if name:
+            queryset = queryset.filter(name__icontains=name)
+
+        return queryset.distinct()
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                "name",
+                type=str,
+                description="Filter by title (ex. ?name=show theme)",
+            ),
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
 
 class PlanetariumDomeViewSet(
     mixins.CreateModelMixin,
