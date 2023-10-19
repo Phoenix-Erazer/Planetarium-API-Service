@@ -1,13 +1,24 @@
-FROM python:3.11
+FROM python:3.11-slim-buster
 LABEL maintainer="phoenixerazer@gmail.com"
 
 ENV PYTHONUNBUFFERED 1
 
-WORKDIR /app
+WORKDIR app/
 
 COPY requirements.txt requirements.txt
+RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
 COPY . .
 
-CMD [ "python", "manage.py", "runserver", "0.0.0.0:8000"]
+RUN mkdir -p /vol/web/media
+
+RUN adduser \
+    --disabled-password \
+    --no-create-home \
+    django-user
+
+RUN chown -R django-user:django-user /vol/
+RUN chmod -R 755 /vol/web/
+
+USER django-user
