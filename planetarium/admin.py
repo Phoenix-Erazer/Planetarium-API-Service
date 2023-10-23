@@ -44,7 +44,7 @@ class TicketInline(admin.TabularInline):
 
 @admin.register(Ticket)
 class TicketAdmin(admin.ModelAdmin):
-    list_display = ["id", "row", "seat", "show_sessions", "reservations"]
+    list_display = ["id", "row", "seat", "show_sessions", "reservation"]
     search_fields = ["show_sessions"]
 
 

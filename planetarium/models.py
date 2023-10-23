@@ -66,7 +66,7 @@ class Ticket(models.Model):
     show_sessions = models.ForeignKey(
         ShowSession, on_delete=models.CASCADE, related_name="tickets"
     )
-    reservations = models.ForeignKey(
+    reservation = models.ForeignKey(
         Reservation, on_delete=models.CASCADE, related_name="tickets"
     )
 
