@@ -11,7 +11,7 @@ from user.models import User
 
 
 class ShowTheme(models.Model):
-    name = models.CharField(max_length=64, null=True)
+    name = models.CharField(max_length=64, null=True, unique=True)
 
     def __str__(self):
         return str(self.name)
@@ -35,7 +35,7 @@ class AstronomyShow(models.Model):
 
 
 class PlanetariumDome(models.Model):
-    name = models.CharField(max_length=255, null=True)
+    name = models.CharField(max_length=255, null=True, unique=True)
     rows = models.IntegerField(default=1, validators=[MinValueValidator(1)])
     seats_in_row = models.IntegerField(default=1, validators=[MinValueValidator(1)])
 
