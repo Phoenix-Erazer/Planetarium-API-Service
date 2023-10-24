@@ -177,8 +177,6 @@ class ReservationViewSet(
 ):
     queryset = Reservation.objects.prefetch_related(
         "tickets__show_sessions",
-        # "tickets__show_sessions__astronomy_show",
-        # "tickets__show_sessions__planetarium_dome"
     )
     serializer_class = ReservationSerializer
     pagination_class = ReservationPagination
@@ -232,6 +230,6 @@ class ShowSessionViewSet(
 
 
 class TicketViewSet(viewsets.ModelViewSet):
-    queryset = Ticket.objects.all().select_related("show_sessions", "reservations")
+    queryset = Ticket.objects.all().select_related("show_sessions", "reservation")
     serializer_class = TicketSerializer
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
