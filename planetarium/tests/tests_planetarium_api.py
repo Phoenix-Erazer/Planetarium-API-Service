@@ -43,11 +43,12 @@ class AuthenticatedShowSessionApiTests(TestCase):
 
         astronomy_show = AstronomyShow.objects.create(
             title="astronomy_show1_test",
-            description=show_theme
         )
-
+        astronomy_show.description.add(show_theme)
+        # print(astronomy_show)
+        # print(planetarium_dome)
         show_session_with_astronomy_show.astronomy_show.add(astronomy_show)
-        show_session_with_astronomy_show.planetarium_dome.add(planetarium_dome)
+        # show_session_with_astronomy_show.planetarium_dome.add(planetarium_dome)
 
         res = self.client.get(SHOW_THEME_URL)
 

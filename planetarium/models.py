@@ -52,8 +52,14 @@ class Reservation(models.Model):
 
 
 class ShowSession(models.Model):
-    astronomy_show = models.ForeignKey(AstronomyShow, on_delete=models.CASCADE, related_name="shows_session")
-    planetarium_dome = models.ForeignKey(PlanetariumDome, on_delete=models.CASCADE)
+    astronomy_show = models.ForeignKey(
+        AstronomyShow,
+        on_delete=models.CASCADE,
+        related_name="shows_session",
+        blank=False,
+        null=True
+    )
+    planetarium_dome = models.ForeignKey(PlanetariumDome, on_delete=models.CASCADE, blank=False, null=True)
     show_time = models.DateTimeField()
 
     def __str__(self):

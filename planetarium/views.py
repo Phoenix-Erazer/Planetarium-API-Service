@@ -199,6 +199,7 @@ class ShowSessionViewSet(
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
     GenericViewSet,
 ):
     queryset = ShowSession.objects.all()
