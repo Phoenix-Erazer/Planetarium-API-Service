@@ -2,21 +2,29 @@
 
 ## Check it out!
 
-[//]: # ([Newspaper Agency Project deployed to Render]&#40;https://newspaper-agency-v299.onrender.com/&#41;)
+## ✨ Start the app in Docker
 
-[//]: # (```bash)
+> **Step 1** - Download the code from the GH repository (using `GIT`) 
 
-[//]: # ()
-[//]: # (login: user  )
+```bash
+$ git clone https://github.com/Phoenix-Erazer/Planetarium-API-Service
+$ cd Planetarium-API-Service
+```
 
-[//]: # ()
-[//]: # (password: user12345)
+<br />
 
-[//]: # ()
-[//]: # (```)
+> **Step 2** - Start the APP in `Docker`
+
+```bash
+$ docker-compose up --build 
+```
+
+Visit `http://localhost:8000` in your browser. The app should be up & running.
+
+<br />
 
 
-## Manual Build 
+### 👉 Set Up for `Windows` 
 
 > 👉 Download the code  
 
