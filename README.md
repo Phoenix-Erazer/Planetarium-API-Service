@@ -19,7 +19,7 @@ $ cd Planetarium-API-Service
 $ docker-compose up --build 
 ```
 
-Visit `http://127.0.0.1:8000/ in your browser. The app should be up & running.
+Visit `http://127.0.0.1:8000/` in your browser. The app should be up & running.
 
 <br />
 
