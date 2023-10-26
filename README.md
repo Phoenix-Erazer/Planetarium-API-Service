@@ -13,7 +13,23 @@ $ cd Planetarium-API-Service
 
 <br />
 
-> **Step 2** - Start the APP in `Docker`
+> **Step 2** - Change DATABASES in settings.py
+
+```bash
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": config("POSTGRES_DB"),
+        "USER": config("POSTGRES_USER"),
+        "PASSWORD": config("POSTGRES_PASSWORD"),
+        "HOST": config("POSTGRES_HOST"),
+    }
+}
+```
+
+<br />
+
+> **Step 3** - Start the APP in `Docker`
 
 ```bash
 $ docker-compose up --build 
