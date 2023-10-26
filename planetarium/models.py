@@ -7,8 +7,6 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.text import slugify
 
-from user.models import User
-
 
 class ShowTheme(models.Model):
     name = models.CharField(max_length=64, null=True, unique=True)
@@ -27,8 +25,12 @@ def astronomy_show_image_file_path(instance, filename):
 
 class AstronomyShow(models.Model):
     title = models.CharField(max_length=64, null=True)
-    description = models.ManyToManyField(ShowTheme, related_name="astronomy_shows")
-    image = models.ImageField(null=True, upload_to=astronomy_show_image_file_path)
+    description = models.ManyToManyField(
+        ShowTheme, related_name="astronomy_shows"
+    )
+    image = models.ImageField(
+        null=True, upload_to=astronomy_show_image_file_path
+    )
 
     def __str__(self):
         return str(self.title)
@@ -37,7 +39,9 @@ class AstronomyShow(models.Model):
 class PlanetariumDome(models.Model):
     name = models.CharField(max_length=255, null=True, unique=True)
     rows = models.IntegerField(default=1, validators=[MinValueValidator(1)])
-    seats_in_row = models.IntegerField(default=1, validators=[MinValueValidator(1)])
+    seats_in_row = models.IntegerField(
+        default=1, validators=[MinValueValidator(1)]
+    )
 
     def __str__(self):
         return f"{self.name}"
@@ -45,7 +49,9 @@ class PlanetariumDome(models.Model):
 
 class Reservation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE
+    )
 
     def __str__(self):
         return f"{self.created_at}"
@@ -57,10 +63,12 @@ class ShowSession(models.Model):
         on_delete=models.CASCADE,
         related_name="shows_session",
         blank=False,
-        null=True
+        null=True,
     )
-    planetarium_dome = models.ForeignKey(PlanetariumDome, on_delete=models.CASCADE, blank=False, null=True)
-    show_time = models.DateTimeField()
+    planetarium_dome = models.ForeignKey(
+        PlanetariumDome, on_delete=models.CASCADE, blank=False, null=True
+    )
+    show_time = models.DateTimeField(blank=False, null=True)
 
     def __str__(self):
         return f" {self.astronomy_show}: {self.planetarium_dome}"
@@ -104,7 +112,10 @@ class Ticket(models.Model):
         )
 
     def save(
-        self, force_insert=False, force_update=False, using=None, update_fields=None
+        self, force_insert=False,
+            force_update=False,
+            using=None,
+            update_fields=None
     ):
         self.full_clean()
         return super(Ticket, self).save(
