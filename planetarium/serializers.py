@@ -113,7 +113,9 @@ class ShowSessionDetailSerializer(ShowSessionSerializer):
 
     class Meta:
         model = ShowSession
-        fields = ("id", "astronomy_show", "planetarium_dome", "show_time", "tickets")
+        fields = (
+            "id", "astronomy_show", "planetarium_dome", "show_time", "tickets"
+        )
 
 
 class ReservationSerializer(serializers.ModelSerializer):

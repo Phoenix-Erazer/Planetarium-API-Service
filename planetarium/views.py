@@ -211,7 +211,9 @@ class ShowSessionViewSet(
 
         if self.action == "list":
             queryset = (
-                queryset.select_related("astronomy_show", "planetarium_dome").annotate(
+                queryset.select_related(
+                    "astronomy_show", "planetarium_dome"
+                ).annotate(
                     tickets_available=(
                         F("planetarium_dome__seats_in_row")
                         * F("planetarium_dome__rows")
@@ -231,6 +233,8 @@ class ShowSessionViewSet(
 
 
 class TicketViewSet(viewsets.ModelViewSet):
-    queryset = Ticket.objects.all().select_related("show_sessions", "reservation")
+    queryset = Ticket.objects.all().select_related(
+        "show_sessions", "reservation"
+    )
     serializer_class = TicketSerializer
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
